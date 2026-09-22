@@ -1,11 +1,16 @@
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 
-const state = { mode: 'mixed', phase: 'setup', memorySeconds: 720, answerSeconds: 480, remaining: 720, question: {}, timerId: null };
-const words = ['流星', '書桌', '珊瑚', '雨傘', '月亮', '地圖', '檸檬', '燈塔', '風箏', '森林', '車票', '海浪', '雲朵', '鑰匙', '河流'];
+const state = { mode: 'mixed', difficulty: 'medium', phase: 'setup', memorySeconds: 720, answerSeconds: 480, remaining: 720, question: {}, timerId: null };
+const words = ['流星', '書桌', '珊瑚', '雨傘', '月亮', '地圖', '檸檬', '燈塔', '風箏', '森林', '車票', '海浪', '雲朵', '鑰匙', '河流', '火山', '日曆', '鏡子', '花園', '船錨'];
 const strategies = ['瞞天過海', '圍魏救趙', '借刀殺人', '以逸待勞', '趁火打劫', '聲東擊西', '無中生有', '暗度陳倉', '隔岸觀火', '笑裡藏刀'];
 const suits = [{ symbol: '♠', red: false }, { symbol: '♥', red: true }, { symbol: '♦', red: true }, { symbol: '♣', red: false }];
 const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+const difficultyLevels = {
+  simple: { label: '簡單', numbers: 20, words: 8, cards: 8, strategies: 3 },
+  medium: { label: '中等', numbers: 30, words: 12, cards: 10, strategies: 5 },
+  hard: { label: '困難', numbers: 40, words: 16, cards: 12, strategies: 7 },
+};
 const landingScreen = $('#landing-screen');
 const setupScreen = $('#setup-screen');
 const sessionScreen = $('#session-screen');
@@ -25,10 +30,11 @@ function generateNumbers(count) {
   return digits;
 }
 function generateQuestion() {
-  const numbers = generateNumbers(30);
-  const wordList = shuffle(words).slice(0, 12);
-  const cards = generateCards(10);
-  const planList = shuffle(strategies).slice(0, 5);
+  const level = difficultyLevels[state.difficulty];
+  const numbers = generateNumbers(level.numbers);
+  const wordList = shuffle(words).slice(0, level.words);
+  const cards = generateCards(level.cards);
+  const planList = shuffle(strategies).slice(0, level.strategies);
   if (state.mode === 'numbers') return { numbers };
   if (state.mode === 'words') return { words: wordList };
   if (state.mode === 'cards') return { cards };
@@ -48,13 +54,13 @@ function renderMemory() {
   if (state.mode === 'numbers') $('#question-stage').innerHTML = renderNumbers(q.numbers);
   if (state.mode === 'words') $('#question-stage').innerHTML = renderWords(q.words);
   if (state.mode === 'cards') $('#question-stage').innerHTML = renderCards(q.cards);
-  if (state.mode === 'mixed') $('#question-stage').innerHTML = `<div class="mixed-memory"><section class="mixed-section"><h3>數字記憶 · 30 個</h3>${renderNumbers(q.numbers, true)}</section><section class="mixed-section"><h3>文字記憶 · 12 個</h3>${renderWords(q.words)}</section><section class="mixed-section"><h3>撲克牌記憶 · 10 張</h3>${renderCards(q.cards)}</section><section class="mixed-section"><h3>三十六計記憶 · 5 個</h3>${renderPlans(q.strategies)}</section></div>`;
+  if (state.mode === 'mixed') $('#question-stage').innerHTML = `<div class="mixed-memory"><section class="mixed-section"><h3>數字記憶 · ${q.numbers.length} 個</h3>${renderNumbers(q.numbers, true)}</section><section class="mixed-section"><h3>文字記憶 · ${q.words.length} 個</h3>${renderWords(q.words)}</section><section class="mixed-section"><h3>撲克牌記憶 · ${q.cards.length} 張</h3>${renderCards(q.cards)}</section><section class="mixed-section"><h3>三十六計記憶 · ${q.strategies.length} 個</h3>${renderPlans(q.strategies)}</section></div>`;
 }
 function inputBlock(key, label, hint) { return `<div class="answer-block"><label for="answer-${key}">${label}</label><input class="answer-input" id="answer-${key}" autocomplete="off" placeholder="${hint}" /><p class="answer-hint">${hint}</p></div>`; }
 function renderAnswer() {
   const blocks = [];
-  if (state.question.numbers) blocks.push(inputBlock('numbers', '數字答案', '連續輸入 30 個數字，例如：2765717030…'));
-  if (state.question.words) blocks.push(inputBlock('words', '文字答案', '依順序以空格或逗號分隔 12 個詞語'));
+  if (state.question.numbers) blocks.push(inputBlock('numbers', '數字答案', `連續輸入 ${state.question.numbers.length} 個數字，例如：2765717030…`));
+  if (state.question.words) blocks.push(inputBlock('words', '文字答案', `依順序以空格或逗號分隔 ${state.question.words.length} 個詞語`));
   if (state.question.cards) blocks.push(inputBlock('cards', '撲克牌答案', '依順序以空格或逗號分隔，例如：A♠, 7♥, K♦'));
   if (state.question.strategies) blocks.push(inputBlock('strategies', '三十六計答案', '輸入記得的成語，以空格或逗號分隔'));
   $('#question-stage').innerHTML = `<div class="answer-form">${blocks.join('')}</div>`;
@@ -118,17 +124,17 @@ function startPractice() { state.question = generateQuestion(); setHeader(true);
 function goHome() { clearInterval(state.timerId); setHeader(false); showScreen(landingScreen); }
 function showSetup() { setHeader(true); showScreen(setupScreen); renderModeDetail(); }
 function renderModeDetail() {
+  const level = difficultyLevels[state.difficulty];
   const copy = {
-    numbers: { title: '數字記憶練習', description: '記憶 30 個數字,按照順序作答', bullets: ['記憶時間:12 分鐘', '作答時間:8 分鐘', '評分標準:按順序正確記憶'] },
-    words: { title: '文字記憶練習', description: '記憶 12 個詞語,按照順序作答', bullets: ['記憶時間:12 分鐘', '作答時間:8 分鐘', '評分標準:按順序正確記憶'] },
-    cards: { title: '撲克牌記憶練習', description: '記憶 10 張牌的花色與順序', bullets: ['記憶時間:12 分鐘', '作答時間:8 分鐘', '評分標準:按順序正確記憶'] },
+    numbers: { title: '數字記憶練習', description: `記憶 ${level.numbers} 個數字,按照順序作答`, count: `數字記憶:${level.numbers} 個` },
+    words: { title: '文字記憶練習', description: `記憶 ${level.words} 個詞語,按照順序作答`, count: `文字記憶:${level.words} 個` },
+    cards: { title: '撲克牌記憶練習', description: `記憶 ${level.cards} 張牌的花色與順序`, count: `撲克牌記憶:${level.cards} 張` },
   };
-  if (state.mode === 'mixed') {
-    $('#mode-detail').innerHTML = `<h2>⚙　綜合練習設定</h2><p>選擇難易度後開始完整模擬考核</p><label class="difficulty-label" for="difficulty">難易度</label><select class="difficulty-select" id="difficulty"><option>中等</option><option>初階</option><option>進階</option></select><div class="difficulty-box"><strong>中等難度</strong><ul><li>數字記憶:30 個</li><li>文字記憶:12 個</li><li>撲克牌記憶:10 張</li><li>三十六計記憶:5 個</li></ul><hr /><strong>記憶時間:12 分鐘｜作答時間:8 分鐘</strong></div>`;
-    return;
-  }
-  const detail = copy[state.mode];
-  $('#mode-detail').innerHTML = `<h2>${detail.title}</h2><p>${detail.description}</p><ul>${detail.bullets.map(item => `<li>${item}</li>`).join('')}</ul>`;
+  const selector = `<label class="difficulty-label" for="difficulty">難易度</label><select class="difficulty-select" id="difficulty">${Object.entries(difficultyLevels).map(([key, item]) => `<option value="${key}" ${key === state.difficulty ? 'selected' : ''}>${item.label}</option>`).join('')}</select>`;
+  const mixedCounts = [`數字記憶:${level.numbers} 個`, `文字記憶:${level.words} 個`, `撲克牌記憶:${level.cards} 張`, `三十六計記憶:${level.strategies} 個`];
+  const detail = state.mode === 'mixed' ? { title: '⚙　綜合練習設定', description: '選擇難易度後開始完整模擬考核', counts: mixedCounts } : { ...copy[state.mode], counts: [copy[state.mode].count] };
+  $('#mode-detail').innerHTML = `<h2>${detail.title}</h2><p>${detail.description}</p>${selector}<div class="difficulty-box"><strong>${level.label}難度</strong><ul>${detail.counts.map(count => `<li>${count}</li>`).join('')}</ul><hr /><strong>記憶時間:12 分鐘｜作答時間:8 分鐘</strong></div>`;
+  $('#difficulty').addEventListener('change', event => { state.difficulty = event.target.value; renderModeDetail(); });
 }
 
 $('#enter-setup-button').addEventListener('click', showSetup);
