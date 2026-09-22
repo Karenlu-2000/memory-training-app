@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#071326" />
+    <title>記憶訓練練習系統</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+    <style>
+      .word-grid,.mixed-section .word-grid{grid-template-columns:repeat(6,minmax(0,1fr))}.word-token,.mixed-section .word-token{min-width:0;font-size:17px}.answer-comparison{display:grid;gap:10px;text-align:left}.answer-comparison h2{margin:20px 0 0;color:#4e5662;font-size:21px}.answer-line{display:flex;flex-wrap:wrap;gap:11px;padding:25px 28px;border-radius:10px;background:#f1f2f4;color:#1d1e20;font:700 23px ui-monospace,monospace;letter-spacing:.03em;line-height:1.28}.answer-line em{font-family:"Noto Sans TC",Arial,sans-serif;font-size:16px;font-style:normal;color:#737982}.is-word-answer{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));font-family:"Noto Sans TC",Arial,sans-serif;font-size:16px;text-align:center}.result-score{margin:16px 0 34px;text-align:left;color:#72747c;font-size:26px;font-weight:600}.result-score strong{font:700 28px ui-monospace,monospace;color:#575b64}.result-score span{font-size:18px;color:#6f7580}@media(max-width:600px){.word-grid,.mixed-section .word-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}.word-token,.mixed-section .word-token{min-height:50px;padding:4px;font-size:12px}.answer-line{gap:8px;padding:20px;font-size:20px}.is-word-answer{font-size:12px}.answer-comparison h2{font-size:18px}.result-score{font-size:21px}.result-score strong{font-size:23px}.result-score span{font-size:15px}}
+    </style>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <button class="back-button is-hidden" id="back-button" type="button">← <span>返回首頁</span></button>
+        <div class="brand"><span class="brand-mark" aria-hidden="true">♧</span><span id="brand-text">記憶訓練練習系統</span></div>
+      </header>
+      <section class="screen landing-screen" id="landing-screen" aria-labelledby="landing-title">
+        <div class="landing-intro"><h1 id="landing-title">提升記憶力,成為極速記憶師</h1><p>專業的記憶訓練系統,提供完整的考核練習功能,包括數字記憶、文字記憶、撲克牌記憶、三十六計記憶和文章整理等多種訓練模式</p></div>
+        <section class="stage-card"><div class="stage-icon">◷</div><h2>第一階段:極速記憶</h2><p class="stage-time">考試時間 12 分鐘｜作答時間 8 分鐘</p><p>包含四種題型:</p><ul><li>數字記憶 (30個數字)</li><li>文字記憶 (12個詞語)</li><li>撲克牌記憶 (10張牌)</li><li>三十六計記憶 (5個成語)</li></ul><button class="primary-button" id="enter-setup-button" type="button">開始練習</button></section>
+      </section>
+      <section class="screen setup-screen is-hidden" id="setup-screen" aria-labelledby="setup-title"><section class="practice-card"><h1 id="setup-title">選擇練習模式</h1><p class="rule-copy">考試時間 12 分鐘｜作答時間 8 分鐘｜評分標準:數字、文字、牌皆需照順序</p><div class="mode-tabs" role="radiogroup" aria-label="練習模式"><button class="mode-tab is-selected" type="button" data-mode="mixed" role="radio" aria-checked="true">綜合練習</button><button class="mode-tab" type="button" data-mode="numbers" role="radio" aria-checked="false">數字記憶</button><button class="mode-tab" type="button" data-mode="words" role="radio" aria-checked="false">文字記憶</button><button class="mode-tab" type="button" data-mode="cards" role="radio" aria-checked="false">撲克牌記憶</button></div><section class="mode-detail" id="mode-detail"></section><button class="primary-button" id="start-button" type="button">▷　開始練習</button></section></section>
+      <section class="screen session-screen is-hidden" id="session-screen" aria-live="polite"><section class="practice-card memory-card"><h1 id="session-title">記憶階段</h1><p class="remaining-line" id="timer-caption">剩餘時間:<time id="timer" datetime="PT12M">12:00</time></p><div class="question-stage" id="question-stage"></div><p class="memory-tip" id="memory-tip">準備好後，可隨時提前開始作答。</p><button class="primary-button" id="phase-button" type="button">開始回答</button></section></section>
+      <section class="screen result-screen is-hidden" id="result-screen" aria-labelledby="result-title"><section class="practice-card"><h1 id="result-title">練習結果</h1><p class="result-score">您的成績:<strong id="score-percent">0%</strong><span id="score-summary">（0 / 0 題正確）</span></p><div class="result-details" id="result-details"></div><div class="result-actions"><button class="secondary-button" id="retry-button" type="button">↻　重新練習</button><button class="primary-button" id="home-button" type="button">返回首頁</button></div></section></section>
+    </main>
+    <script src="./app.js"></script>
+  </body>
+</html>
